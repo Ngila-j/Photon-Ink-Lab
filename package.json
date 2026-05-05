@@ -1,0 +1,16 @@
+{
+  "name": "photon-ink-lab",
+  "version": "1.0.0",
+  "description": "Internal Research Lab for Photon Ink AI",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vite": "^8.0.8"
+  }
+}

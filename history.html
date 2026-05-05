@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Archive | Photon Ink AI</title>
+    <link rel="icon" type="image/png" href="WhatsApp_Image_2026-04-09_at_15.43.28-removebg-preview.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { photonNavy: '#0A192F', photonGold: '#D4AF37', photonDeep: '#060E1A' },
+                    fontFamily: { serif: ['"Playfair Display"', 'serif'], sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0A192F; }
+        .archive-card { background: rgba(6, 14, 26, 0.4); border: 1px solid rgba(255,255,255,0.05); transition: all 0.3s ease; }
+        .archive-card:hover { border-color: #D4AF37; transform: translateY(-2px); }
+    </style>
+</head>
+<body class="text-white font-sans min-h-screen flex flex-col">
+
+    <nav class="p-6 border-b border-white/5 flex justify-between items-center bg-photonNavy/80 backdrop-blur-md sticky top-0 z-50">
+        <div class="flex items-center space-x-4">
+            <img src="WhatsApp_Image_2026-04-09_at_15.43.28-removebg-preview.png" alt="Logo" class="h-8">
+            <span class="text-[10px] uppercase tracking-[0.4em] text-photonGold font-bold">Research Archive</span>
+        </div>
+        <a href="research.html" class="text-[10px] uppercase tracking-widest text-slate-400 hover:text-photonGold transition-all">← Back to Lab</a>
+    </nav>
+
+    <main class="p-8 lg:p-16 max-w-6xl mx-auto w-full flex-grow">
+        <header class="mb-12">
+            <h2 class="text-photonGold uppercase tracking-[0.4em] text-[10px] mb-2 font-bold italic">Historical Context</h2>
+            <h1 class="font-serif text-4xl font-light">Previous Syntheses</h1>
+        </header>
+
+        <div id="history-container" class="grid grid-cols-1 gap-6">
+            </div>
+
+        <div id="empty-state" class="hidden text-center py-20 opacity-30 italic text-sm">
+            No landmark studies found in the local archive.
+        </div>
+    </main>
+
+    <footer class="p-8 text-center opacity-20 text-[8px] uppercase tracking-[0.5em]">
+        Internal Use Only | Photon Ink AI | © 2026
+    </footer>
+
+    <script>
+        const container = document.getElementById('history-container');
+        const emptyState = document.getElementById('empty-state');
+
+        function loadHistory() {
+            const history = JSON.parse(localStorage.getItem('photon_history') || '[]');
+            
+            if (history.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            container.innerHTML = history.map((item, index) => `
+                <div class="archive-card p-8 rounded-sm flex flex-col space-y-4">
+                    <div class="flex justify-between items-start">
+                        <span class="text-[9px] uppercase tracking-widest text-photonGold/60">${item.date}</span>
+                        <span class="text-[9px] uppercase tracking-widest text-slate-500">${item.style}</span>
+                    </div>
+                    <h3 class="font-serif text-xl text-slate-200 line-clamp-1 italic">"${item.preview}..."</h3>
+                    <div class="text-sm text-slate-500 line-clamp-2 font-light leading-relaxed">
+                        ${item.output.substring(0, 200)}...
+                    </div>
+                    <div class="pt-4 flex space-x-4 border-t border-white/5">
+                        <button onclick="viewFull(${index})" class="text-[9px] uppercase tracking-widest text-photonGold hover:text-white transition-all">View Full Study</button>
+                        <button onclick="deleteItem(${index})" class="text-[9px] uppercase tracking-widest text-red-900/50 hover:text-red-500 transition-all">Delete</button>
+                    </div>
+                </div>
+            `).reverse().join('');
+        }
+
+        window.viewFull = (index) => {
+            const history = JSON.parse(localStorage.getItem('photon_history'));
+            const item = history[index];
+            alert("LANDMARK STUDY:\n\n" + item.output);
+            // In a real world-class app, this would open a beautiful modal.
+        };
+
+        window.deleteItem = (index) => {
+            if(confirm("Confirm deletion from the local archive?")) {
+                let history = JSON.parse(localStorage.getItem('photon_history'));
+                history.splice(index, 1);
+                localStorage.setItem('photon_history', JSON.stringify(history));
+                loadHistory();
+            }
+        };
+
+        loadHistory();
+    </script>
+</body>
+</html>
