@@ -1,20 +1,16 @@
 // Photon Ink AI - Internal Lab Connector
-export default async function handler(req, res) {
+const { GoogleGenAI } = require('@google/genai');
+
+module.exports = async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
     const { prompt, style } = req.body;
 
-    const API_KEY = process.env.AI_SECRET_KEY;
-    const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
+    const ai = new GoogleGenAI({ apiKey: "AIzaSyAF3xoMzhPrfylCO-7ajHfg6jC2etnvl5A" });
 
-    const payload = {
-        contents: [
-            {
-                parts: [
-                    {
-                        text: `System Identity: You are a Senior Research Fellow and high-level academic architect. Do not use conversational preambles, greetings, or casual tone. Provide formal, precise, direct academic analysis.
+    const systemPrompt = `System Identity: You are a Senior Research Fellow and high-level academic architect. Do not use conversational preambles, greetings, or casual tone. Provide formal, precise, direct academic analysis.
 
 Paragraph architecture: Every paragraph must follow the PEEL+ protocol exactly.
 1. Point: begin with a clear, authoritative, arguable topic sentence.
@@ -33,34 +29,31 @@ If you make any factual claim, data assertion, historical reference, statistical
 Style: ${style}.
 Task: ${prompt}.
 
-Core mandate: Maintain an academic, evidence-driven tone. Every claim must be defensible. Thesis coherence is paramount.`
-                    }
-                ]
-            }
-        ],
-        generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 2500
-        }
-    };
+Core mandate: Maintain an academic, evidence-driven tone. Every claim must be defensible. Thesis coherence is paramount.`;
 
     try {
-        const response = await fetch(ENDPOINT, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: [
+                {
+                    parts: [
+                        {
+                            text: systemPrompt
+                        }
+                    ]
+                }
+            ],
+            config: {
+                temperature: 0.3,
+                maxOutputTokens: 2500
+            }
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            return res.status(response.status).json({ error: 'API request failed', details: errorText });
-        }
-
-        const data = await response.json();
-        const textOutput = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+        const textOutput = response.text ?? '';
 
         res.status(200).json({ output: textOutput });
     } catch (error) {
+        console.error("DETAILED SERVER ERROR:", error);
         res.status(500).json({ error: 'The Fellow is currently offline. Check API connection.' });
     }
-}
+};
